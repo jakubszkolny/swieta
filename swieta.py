@@ -1,8 +1,21 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import random
 
-st.title("🎄 Świąteczny Mikołaj z prezentami")
+st.title("🎅 Świąteczny Mikołaj z prezentami i migoczącymi światełkami")
+
+# --- Przyciski do sterowania migotaniem ---
+if 'lights_on' not in st.session_state:
+    st.session_state['lights_on'] = True
+
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Stop migotanie"):
+        st.session_state['lights_on'] = False
+with col2:
+    if st.button("Start migotanie"):
+        st.session_state['lights_on'] = True
 
 # Tworzymy figurę matplotlib
 fig, ax = plt.subplots(figsize=(10, 10))
@@ -12,22 +25,32 @@ ax.set_aspect("equal")
 ax.axis("off")
 
 # --- TŁO ŚWIĄTECZNE ---
+ax.add_patch(patches.Rectangle((0, 0), 12, 2.5, color="#e6f7ff"))  # Śnieg
 
-# Śnieg na ziemi
-ax.add_patch(patches.Rectangle((0, 0), 12, 2.5, color="#e6f7ff"))
+# --- Choinka ---
+tree_layers = [
+    [[2,2.5], [3,6], [1,6]],
+    [[2,5], [3,8], [1,8]],
+    [[2,7.5], [3,10], [1,10]]
+]
 
-# Choinka po lewej
-ax.add_patch(patches.Polygon([[2,2.5], [3,6], [1,6]], color="green"))   # dolna część
-ax.add_patch(patches.Polygon([[2,5], [3,8], [1,8]], color="green"))     # środkowa część
-ax.add_patch(patches.Polygon([[2,7.5], [3,10], [1,10]], color="green"))  # górna część
-
-# Bombki na choince
-ax.add_patch(patches.Circle((2,5.5), 0.15, color="red"))
-ax.add_patch(patches.Circle((2.5,7), 0.15, color="yellow"))
-ax.add_patch(patches.Circle((1.5,8), 0.15, color="blue"))
+for layer in tree_layers:
+    ax.add_patch(patches.Polygon(layer, color="green"))
 
 # Gwiazdka na czubku
 ax.add_patch(patches.RegularPolygon((2,10), numVertices=5, radius=0.2, color="yellow"))
+
+# --- Bombki na choince ---
+bombki_positions = [(2,5.5), (2.5,7), (1.5,8), (1.8,6), (2.2,8.5)]
+bombki_colors = ["red", "yellow", "blue", "purple", "orange"]
+
+# Jeśli migotanie włączone, losujemy kolory bombek
+if st.session_state['lights_on']:
+    bombki_colors = [random.choice(["red", "yellow", "blue", "purple", "orange", "pink", "cyan"]) 
+                     for _ in bombki_positions]
+
+for pos, color in zip(bombki_positions, bombki_colors):
+    ax.add_patch(patches.Circle(pos, 0.15, color=color))
 
 # --- ŚWIĘTY MIKOŁAJ ---
 ax.add_patch(patches.Circle((8, 6), 1.3, color="red"))           # Korpus
@@ -37,10 +60,10 @@ ax.add_patch(patches.Polygon([[7.2, 8], [8, 9.3], [8.8, 8]], color="red")) # Cza
 ax.add_patch(patches.Circle((8, 9.3), 0.25, color="white"))      # Pompon
 
 # Ręce uniesione do góry
-ax.add_patch(patches.Rectangle((6.2, 7.2), 0.8, 1.8, color="red"))  # lewa ręka
-ax.add_patch(patches.Rectangle((8.8, 7.2), 0.8, 1.8, color="red"))  # prawa ręka
-ax.add_patch(patches.Circle((6.6, 8.8), 0.35, color="brown"))       # lewa rękawiczka
-ax.add_patch(patches.Circle((9.2, 8.8), 0.35, color="brown"))       # prawa rękawiczka
+ax.add_patch(patches.Rectangle((6.2, 7.2), 0.8, 1.8, color="red"))
+ax.add_patch(patches.Rectangle((8.8, 7.2), 0.8, 1.8, color="red"))
+ax.add_patch(patches.Circle((6.6, 8.8), 0.35, color="brown"))
+ax.add_patch(patches.Circle((9.2, 8.8), 0.35, color="brown"))
 
 # Pasek i nogi
 ax.add_patch(patches.Rectangle((7.2, 5.3), 1.6, 0.3, color="black"))
